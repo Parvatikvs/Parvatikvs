@@ -1,0 +1,37 @@
+YAML
+---
+- name: Provision a web server on AWS
+  hosts: webserver
+  become: true  
+
+  tasks:
+    - name: Launch EC2 instance
+      ec2:
+        group: launch-usa-1 
+        key_name: mys my ec2.key 
+        instance_type: t2.micro
+        image: ami-0b822222228a6d222  
+        wait: yes
+
+    - name: Install Apache web server
+      yum:
+        name: httpd
+        state: present
+
+    - name: Start and enable Apache service
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Copy Hello World content
+      copy:
+        src: hello.html 
+        dest: /var/www/html/index.html
+        owner: apache
+        group: apache
+
+    - name: Ensure httpd service reloaded
+      service:
+        name: httpd
+        state: reloaded
